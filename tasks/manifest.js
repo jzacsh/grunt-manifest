@@ -70,7 +70,7 @@ module.exports = function(grunt) {
       }
 
       var processItem = function(originalItem, section) {
-        return item = options.process ?
+        var item = options.process ?
                       options.process(originalItem, section) :
                       originalItem;
         return item ? (encodeURI(item) + '\n') : '';

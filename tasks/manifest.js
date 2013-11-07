@@ -88,7 +88,7 @@ module.exports = function(grunt) {
             return;  // skip
           }
 
-          contents += processItem(itemPath, 'CACHE');
+          contents += processItem(item, 'CACHE');
 
           // hash file contents
           if (!isDir && options.hash) {

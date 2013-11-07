@@ -124,6 +124,18 @@ Default: `undefined`
 
 Hashes master html files (used with `hash`). Paths must be relative to the 'basePath'. This is useful when there are multiple html pages using one cache manifest and you don't want to explicitly include those pages in the manifest.
 
+#### excludeDirs
+Type: `Boolean`
+Default: `false`
+
+Excludes any items from manifest that resolve to a directory.
+
+#### process
+Type: `Function(string, string) : string`
+
+Optionally passes items in each section to a callback before writing to
+manfiset
+
 ### Config Example
 
 ```js

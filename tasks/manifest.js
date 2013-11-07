@@ -8,9 +8,9 @@
  */
 
 'use strict';
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
-  grunt.registerMultiTask('manifest', 'Generate HTML5 cache manifest', function () {
+  grunt.registerMultiTask('manifest', 'Generate HTML5 cache manifest', function() {
 
     var options = this.options({verbose: true, timestamp: true});
     var done = this.async();
@@ -19,7 +19,7 @@ module.exports = function (grunt) {
 
     var path = require('path');
 
-    this.files.forEach(function (file) {
+    this.files.forEach(function(file) {
 
       var files;
       var cacheFiles = options.cache;
@@ -47,7 +47,7 @@ module.exports = function (grunt) {
 
       // Exclude files
       if (options.exclude) {
-        files = files.filter(function (item) {
+        files = files.filter(function(item) {
           return options.exclude.indexOf(item) === -1;
         });
       }
@@ -69,50 +69,57 @@ module.exports = function (grunt) {
         contents += '# Revision: ' + options.revision + '\n';
       }
 
+      var processItem = function(originalItem, section) {
+        return item = options.process ?
+                      options.process(originalItem, section) :
+                      originalItem;
+        return item ? (encodeURI(item) + '\n') : '';
+      };
+
       // Cache section
       contents += '\nCACHE:\n';
 
+      var cacheItemHandler = function(item) {
+        var itemPath = options.basePath ? path.join(options.basePath, item) : item;
+        if (options.excludeDirs && grunt.file.isDir(itemPath)) {
+          return;  // skip
+        }
+
+        contents += processItem(itemPath, 'CACHE');
+
+        // hash file contents
+        if (options.hash) {
+          grunt.verbose.writeln('Hashing ' + itemPath);
+          hasher.update(grunt.file.read(itemPath), 'binary');
+        }
+      };
+
       // add files to explicit cache manually
       if (cacheFiles) {
-        cacheFiles.forEach(function (item) {
-          contents += encodeURI(item) + '\n';
-        });
+        cacheFiles.forEach(cacheItemHandler);
       }
 
       // add files to explicit cache
       if (files) {
-        files.forEach(function (item) {
-          if (options.process) {
-            contents += encodeURI(options.process(item)) + '\n';
-          } else {
-            contents += encodeURI(item) + '\n';
-          }
-
-          // hash file contents
-          if (options.hash) {
-            grunt.verbose.writeln('Hashing ' + path.join(options.basePath, item));
-            hasher.update(grunt.file.read(path.join(options.basePath, item)), 'binary');
-          }
-        });
+        files.forEach(cacheItemHandler);
       }
 
       // Network section
+      contents += '\nNETWORK:\n';
       if (options.network) {
-        contents += '\nNETWORK:\n';
-        options.network.forEach(function (item) {
-          contents += encodeURI(item) + '\n';
+        options.network.forEach(function(item) {
+          contents += processItem(item, 'NETWORK');
         });
       } else {
         // If there's no network section, add a default '*' wildcard
-        contents += '\nNETWORK:\n';
         contents += '*\n';
       }
 
       // Fallback section
       if (options.fallback) {
         contents += '\nFALLBACK:\n';
-        options.fallback.forEach(function (item) {
-          contents += encodeURI(item) + '\n';
+        options.fallback.forEach(function(item) {
+          contents += processItem(item, 'FALLBACK');
         });
       }
 
@@ -133,7 +140,7 @@ module.exports = function (grunt) {
             options.master = [options.master];
           }
 
-          options.master.forEach(function (item) {
+          options.master.forEach(function(item) {
             grunt.log.writeln('Hashing ' + path.join(options.basePath, item));
             hasher.update(grunt.file.read(path.join(options.basePath, item)), 'binary');
           });

@@ -134,7 +134,8 @@ Excludes any items from manifest that resolve to a directory.
 Type: `Function(string, string) : string`
 
 Optionally passes items in each section to a callback before writing to
-manfiset
+manfiset. Callback arguments are: filepath, manifest-section *(eg `CACHE`)*.
+Returned string is expected to be already percent encoded.
 
 ### Config Example
 

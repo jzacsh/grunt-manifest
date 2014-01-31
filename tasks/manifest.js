@@ -73,8 +73,8 @@ module.exports = function(grunt) {
         if (!originalItem) { return ''; }
         var item = options.process ?
                    options.process(originalItem, section) :
-                   originalItem;
-        return item ? (encodeURI(item) + '\n') : '';
+                   encodeURI(originalItem);
+        return item ? (item + '\n') : '';
       };
 
       // Cache section
